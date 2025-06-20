@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const { MongoStore } = require('./mongoStore');
 const path = require('path');
 
+// Load environment variables
+require('dotenv').config();
+
 // Import from the official whatsapp-web.js library
 const { Client, RemoteAuth } = require('../../whatsapp-web.js');
 
@@ -19,8 +22,13 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../frontend/build')));
 }
 
-// MongoDB Connection
-const MONGODB_URI = 'mongodb+srv://eduardialidini:2n_yv_dYL_sQG-X@cluster0.ihk2hhk.mongodb.net/wadb?retryWrites=true&w=majority';
+// MongoDB Connection - using environment variable
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error('[Server] MONGODB_URI environment variable is not set');
+  process.exit(1);
+}
 
 // Global variables
 let mongoStore;

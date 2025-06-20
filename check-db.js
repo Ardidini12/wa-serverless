@@ -1,7 +1,15 @@
 const mongoose = require('mongoose');
 
+// Load environment variables
+require('dotenv').config();
+
 // MongoDB connection
-const MONGODB_URI = "mongodb+srv://eduardialidini:2n_yv_dYL_sQG-X@cluster0.ihk2hhk.mongodb.net/wadb?retryWrites=true&w=majority";
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error('MONGODB_URI environment variable is not set');
+  process.exit(1);
+}
 
 // Session schema
 const sessionSchema = new mongoose.Schema({
