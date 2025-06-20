@@ -1,0 +1,33 @@
+{
+  "name": "wa_serverless",
+  "version": "1.0.0",
+  "main": "src/backend/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/backend/server.js",
+    "build": "cd src/frontend && npm install && npm run build",
+    "dev:server": "nodemon src/backend/server.js",
+    "dev:client": "cd src/frontend && npm start",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "postinstall": "cd src/frontend && npm install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "archiver": "^6.0.1",
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "fs-extra": "^11.2.0",
+    "mongoose": "^8.16.0",
+    "nodemon": "^3.1.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "qrcode": "^1.5.3",
+    "unzipper": "^0.12.1",
+    "whatsapp-web.js": "^1.30.0",
+    "wwebjs-mongo": "^1.1.0"
+  }
+}
