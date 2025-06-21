@@ -109,37 +109,42 @@ const initializeWhatsAppClient = async () => {
     });
 
     // Event: Client ready (session restored or new session created)
-    client.on('ready', async () => {
-      console.log('[WhatsApp] Client is ready!');
-      clientStatus = 'ready';
-      isConnecting = false;
-      qrCodeData = null;
-      
-      try {
-        const info = client.info;
-        console.log('[WhatsApp] Client info:', {
-          pushname: info.pushname,
-          wid: info.wid._serialized,
-          platform: info.platform
-        });
-
-        // Get profile picture
-        try {
-          const profilePicUrl = await client.getProfilePicUrl(info.wid._serialized);
-          console.log('[WhatsApp] Profile picture URL obtained');
-          info.profilePicUrl = profilePicUrl;
-        } catch (error) {
-          console.log('[WhatsApp] No profile picture available or error getting profile pic:', error.message);
-          info.profilePicUrl = null;
-        }
-        
-        // Store client info globally for API access
-        global.clientInfo = info;
-        
-      } catch (error) {
-        console.error('[WhatsApp] Error getting client info:', error);
-      }
+client.on('ready', async () => {
+  console.log('[WhatsApp] Client is ready!');
+  clientStatus = 'ready';
+  isConnecting = false;
+  qrCodeData = null;
+  
+  // Track session start time
+  const sessionStartTime = new Date();
+  
+  try {
+    const info = client.info;
+    console.log('[WhatsApp] Client info:', {
+      pushname: info.pushname,
+      wid: info.wid._serialized,
+      platform: info.platform
     });
+
+    // Get profile picture
+    try {
+      const profilePicUrl = await client.getProfilePicUrl(info.wid._serialized);
+      console.log('[WhatsApp] Profile picture URL obtained');
+      info.profilePicUrl = profilePicUrl;
+    } catch (error) {
+      console.log('[WhatsApp] No profile picture available or error getting profile pic:', error.message);
+      info.profilePicUrl = null;
+    }
+    
+    // Store client info and session start time globally for API access
+    global.clientInfo = info;
+    global.sessionStartTime = sessionStartTime;
+    
+    console.log(`[WhatsApp] Session started at: ${sessionStartTime.toISOString()}`);
+  } catch (error) {
+    console.error('[WhatsApp] Error getting client info:', error);
+  }
+});
 
     // Event: Authentication successful
     client.on('authenticated', () => {
@@ -195,6 +200,7 @@ const disconnectWhatsApp = async () => {
     isConnecting = false;
     qrCodeData = null;
     global.clientInfo = null; // Clear stored client info
+    global.sessionStartTime = null; // Clear session start time
     
     console.log('[WhatsApp] Client disconnected and session deleted from MongoDB');
     return true;
@@ -263,6 +269,11 @@ app.get('/api/status/client', async (req, res) => {
         platform: info.platform,
         profilePicUrl: info.profilePicUrl
       };
+      
+      // Include session start time if available
+      if (global.sessionStartTime) {
+        response.sessionStartTime = global.sessionStartTime.getTime();
+      }
     }
 
     res.json(response);

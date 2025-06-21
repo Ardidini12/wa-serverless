@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import QRCodeScanner from './QRCodeScanner';
 import axios from 'axios';
 import './WhatsAppStatus.css';
@@ -12,6 +12,58 @@ const WhatsAppStatus = () => {
   const [userPhoneNumber, setUserPhoneNumber] = useState(null);
   const [userProfilePic, setUserProfilePic] = useState(null);
   const [clientInfo, setClientInfo] = useState(null);
+  const [sessionStartTime, setSessionStartTime] = useState(null);
+  const [sessionDuration, setSessionDuration] = useState('00:00:00');
+  const timerRef = useRef(null);
+
+  // Format elapsed time as HH:MM:SS
+  const formatElapsedTime = (milliseconds) => {
+    if (!milliseconds) return '00:00:00';
+    
+    const seconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    
+    return [
+      hours.toString().padStart(2, '0'),
+      minutes.toString().padStart(2, '0'),
+      remainingSeconds.toString().padStart(2, '0')
+    ].join(':');
+  };
+
+  // Update session duration timer
+  useEffect(() => {
+    // Clear previous timer if exists
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    // If we have a session start time, start the timer
+    if (sessionStartTime) {
+      // Update immediately
+      const updateDuration = () => {
+        const now = Date.now();
+        const elapsed = now - sessionStartTime;
+        setSessionDuration(formatElapsedTime(elapsed));
+      };
+      
+      updateDuration();
+      
+      // Then update every second
+      timerRef.current = setInterval(updateDuration, 1000);
+    } else {
+      setSessionDuration('00:00:00');
+    }
+    
+    // Cleanup timer on unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [sessionStartTime]);
 
   useEffect(() => {
     fetchStatus();
@@ -38,6 +90,13 @@ const WhatsAppStatus = () => {
         if (response.data.clientInfo.profilePicUrl) {
           setUserProfilePic(response.data.clientInfo.profilePicUrl);
         }
+      }
+      
+      // Update session start time if available
+      if (response.data.sessionStartTime) {
+        setSessionStartTime(response.data.sessionStartTime);
+      } else {
+        setSessionStartTime(null);
       }
       
       setError(null);
@@ -70,6 +129,7 @@ const WhatsAppStatus = () => {
       setUserPhoneNumber(null);
       setUserProfilePic(null);
       setClientInfo(null);
+      setSessionStartTime(null); // Reset session timer
     } catch (err) {
       setError('Error disconnecting: ' + (err.response?.data?.message || err.message));
     } finally {
@@ -173,6 +233,10 @@ const WhatsAppStatus = () => {
                     <span className="info-label">OS:</span> {clientInfo.phone.os_version}
                   </div>
                 )}
+                
+                <div className="info-item session-timer">
+                  <span className="info-label">Session Active:</span> {sessionDuration}
+                </div>
               </div>
             </div>
             

@@ -192,4 +192,20 @@ button:disabled {
   color: #333;
   margin-bottom: 10px;
   font-weight: 500;
+}
+
+.session-timer {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  margin-top: 8px !important;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+  padding: 8px !important;
+  text-align: center;
+}
+
+.session-timer .info-label {
+  color: #2e7d32;
+  display: block;
+  margin-bottom: 4px;
 } 
