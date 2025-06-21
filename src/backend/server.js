@@ -8,7 +8,7 @@ const path = require('path');
 require('dotenv').config();
 
 // Import from the official whatsapp-web.js library
-const { Client, RemoteAuth } = require('../../whatsapp-web.js');
+const { Client, RemoteAuth } = require('whatsapp-web.js');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
