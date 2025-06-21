@@ -9,7 +9,7 @@
     "dev:server": "nodemon src/backend/server.js",
     "dev:client": "cd src/frontend && npm start",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "postinstall": "cd src/frontend && npm install"
+    "postinstall": "if [ -d \"src/frontend\" ]; then cd src/frontend && npm install; fi"
   },
   "keywords": [],
   "author": "",

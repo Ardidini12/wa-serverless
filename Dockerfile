@@ -19,20 +19,14 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 # Create app directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy all source files including frontend
+COPY . .
 
-# Install dependencies
+# Install dependencies (this will also trigger the postinstall script)
 RUN npm ci --only=production
 
-# Copy frontend package.json
-COPY src/frontend/package*.json ./src/frontend/
-
-# Install frontend dependencies and build
-RUN cd src/frontend && npm ci && npm run build
-
-# Copy source code
-COPY . .
+# Build the frontend
+RUN cd src/frontend && npm run build
 
 # Expose port
 EXPOSE 8080
